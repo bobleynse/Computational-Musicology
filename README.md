@@ -1,37 +1,17 @@
-## Welcome to GitHub Pages
+![Alt text](beatles.jpg "Title")
+# Computational-Musicology
+In 1973, three years after the break-up of the Beatles, two compilation albums were released: The Red Album and The Blue Album. The red album contains a collection of the best songs of the 7 albums made between 1962-1966. The blue album contains a collection of the best songs from the 6 albums released between 1967-1970.
 
-You can use the [editor on GitHub](https://github.com/bobleynse/Computational-Musicology/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+An interesting question is, why decided Apple Records to split up the songs in two compilation albums instead of releasing one all-embracing album. According to Mark Steffen[1], the lifetime of the Beatles can be divided into different phases. He calls the time of The Red Album a phase where the songs were "dance songs whose themes were girls and falling in love." After this phase the Beatles changed, they only wrote songs in the studio, became more individualistic and they grew their hair. The songs in time of The blue Album had a different theme and sound as the group explored many new forms of music. The most famous example is the adding of a sitar in their song.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+That the Beatles changed during their lifetime is clear, but was 1967 a clear turning point to split up the two compilation albums? Or is there a better point in time to divide their music?
 
-### Markdown
+When we look at the averaged features provided by Spotify, a few differences can be seen. The mean energy in songs had a medium descend from 0.60 to 0.48. Also, the mean tempo descended a bit, from 125 to 118. However, the most interesting result is the descend from 0.76 to 0.53 of the valence. This is a measure describing the musical positiveness if a song, which means the music of the Beatles became a lot less positive.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+Looking at the histograms of both periods, a histogram of the valence of the two periods can be seen. Where in the red phase, except for a few outliers, all the songs are more valence, the blue period is more equally spread out.
+![Alt text](Red.png "Title")
+![Alt text](Blue.png "Title")
+For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look to Spotify's features.
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/bobleynse/Computational-Musicology/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+References
+[1] Steffen, M. (1985). The Four Phases of the Beatles (1985).
