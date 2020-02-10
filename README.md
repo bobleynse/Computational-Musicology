@@ -14,7 +14,7 @@ For now, it seems like Apple Records made a good choice dividing the compilation
 
 ![Alt text](Red.png "Title")
 ![Alt text](Blue.png "Title")
-For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look to Spotify's features.
+For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look at Spotify's features.
 
 ### References
 [1] Steffen, M. (1985). The Four Phases of the Beatles (1985).
