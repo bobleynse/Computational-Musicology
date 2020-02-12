@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 ![Alt text](beatles.jpg "Title")
->>>>>>> 473c7ff06d7498d73d0adb7c5c18e910d836d190
 # Computational-Musicology
 In 1973, three years after the break-up of the Beatles, two compilation albums were released: The Red Album and The Blue Album. The red album contains a collection of the best songs of the 7 albums made between 1962-1966. The blue album contains a collection of the best songs from the 6 albums released between 1967-1970.
 
@@ -9,20 +6,15 @@ An interesting question is, why decided Apple Records to split up the songs in t
 
 That the Beatles changed during their lifetime is clear, but was 1967 a clear turning point to split up the two compilation albums? Or is there a better point in time to divide their music?
 
-When we look at the averaged features provided by Spotify, a few differences can be seen. The mean energy in songs had a medium descend from 0.60 to 0.48. Also, the mean tempo descended a bit, from 125 to 118. However, the most interesting result is the descend from 0.76 to 0.53 of the valence. This is a measure describing the musical positiveness if a song, which means the music of the Beatles became a lot less positive.
+When we look at the averaged features provided by Spotify, a few differences can be seen between the songs of the period before and after 1967. The mean energy in songs had a medium descend from 0.60 to 0.48. Also, the mean tempo descended a bit, from 125 to 118. However, the most interesting result is the descend from 0.76 to 0.53 of the valence. This is a measure describing the musical positiveness if a song, which means the music of the Beatles became a lot less positive.
 
 Looking at the histograms of both periods, a histogram of the valence of the two periods can be seen. Where in the red phase, except for a few outliers, all the songs are more valence, the blue period is more equally spread out.
-<<<<<<< HEAD
 
 For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look to Spotify's features.
 
-References
-[1] Steffen, M. (1985). The Four Phases of the Beatles (1985).
-=======
 ![Alt text](Red.png "Title")
 ![Alt text](Blue.png "Title")
-For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look to Spotify's features.
+For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look at Spotify's features.
 
-References
+### References
 [1] Steffen, M. (1985). The Four Phases of the Beatles (1985).
->>>>>>> 473c7ff06d7498d73d0adb7c5c18e910d836d190
