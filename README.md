@@ -8,7 +8,9 @@ That the Beatles changed during their lifetime is clear, but was 1967 a clear tu
 
 When we look at the averaged features provided by Spotify, a few differences can be seen between the songs of the period before and after 1967. The mean energy in songs had a medium descend from 0.60 to 0.48. Also, the mean tempo descended a bit, from 125 to 118. However, the most interesting result is the descend from 0.76 to 0.53 of the valence. This is a measure describing the musical positiveness if a song, which means the music of the Beatles became a lot less positive.
 
-Looking at the histograms of both periods, a histogram of the valence of the two periods can be seen. Where in the red phase, except for a few outliers, all the songs are more valence, the blue period is more equally spread out.
+Looking at the histograms of both periods, a histogram of the valence of the two periods can be seen. Where in the red phase, except for a few outliers, all the songs are more valence, the blue period is more equally spread out. The next question is, can we 
+
+![Alt text](Valence per album.png "Title")
 
 For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look to Spotify's features.
 
