@@ -11,9 +11,10 @@ When we look at the averaged features provided by Spotify, a few differences can
 Looking at the histograms of both periods, a histogram of the valence of the two periods can be seen. Where in the red phase, except for a few outliers, all the songs are more valence, the blue period is more equally spread out. 
 ![Alt text](Red.png "Title")
 ![Alt text](Blue.png "Title")
-For now, it seems like Apple Records made a good choice dividing the compilation album into two parts because the shape of the two plots look different. The next question is, can we see a change in their music over time? In the next image is the energy of the music of The Beatles plotted against the valence per album. (Open the image in a new tab when you want to read the labels.)
+For now, it seems like Apple Records made a good choice dividing the compilation album into two parts because the shape of the two plots looks different. The next question is, can we see a change in their music over time? In the next image is the energy of the music of The Beatles plotted against the valence per album. (Right-click and open the image in a new tab when you want to read the labels more clearly.)
 
 ![Alt text](Valence-per-album.png "Title")
+In the plots, you can see The Beatles changed over time. They started as a band with high energy and valence, but in a few years, they evolved into a more diverse band with songs with high and low energy and high and low valence.
 
 For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look at Spotify's features.
 
