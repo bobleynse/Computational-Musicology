@@ -10,7 +10,7 @@ When we look at the averaged features provided by Spotify, a few differences can
 
 Looking at the histograms of both periods, a histogram of the valence of the two periods can be seen. Where in the red phase, except for a few outliers, all the songs are more valence, the blue period is more equally spread out. The next question is, can we 
 
-![Alt text](Valence per album.png "Title")
+![Alt text](Valence-per-album.png "Title")
 
 For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look to Spotify's features.
 
