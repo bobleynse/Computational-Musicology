@@ -12,7 +12,7 @@ the_red_album <- get_playlist_audio_features('bobleynse', '0ghyYvT2B8me30mShW8pU
 the_blue_album <- get_playlist_audio_features('bobleynse', '0UfoFrm53Q2G7kuQMjchvs')
 
 # get means
-red_M <- the_red_album %>% summarize(dan=mean(danceability), 
+M_red <- the_red_album %>% summarize(dan=mean(danceability), 
                                      ene=mean(energy), 
                                      lou=mean(loudness), 
                                      spe=mean(speechiness), 
@@ -20,9 +20,10 @@ red_M <- the_red_album %>% summarize(dan=mean(danceability),
                                      ins=mean(instrumentalness), 
                                      liv=mean(liveness), 
                                      val=mean(valence), 
-                                     tem=mean(tempo))
+                                     tem=mean(tempo),
+                                     dur=mean(track.duration_ms))
 
-blue_M <- the_blue_album %>% summarize(dan=mean(danceability), 
+M_blue <- the_blue_album %>% summarize(dan=mean(danceability), 
                                        ene=mean(energy), 
                                        lou=mean(loudness), 
                                        spe=mean(speechiness), 
@@ -30,10 +31,11 @@ blue_M <- the_blue_album %>% summarize(dan=mean(danceability),
                                        ins=mean(instrumentalness), 
                                        liv=mean(liveness), 
                                        val=mean(valence), 
-                                       tem=mean(tempo))
+                                       tem=mean(tempo),
+                                       dur=mean(track.duration_ms))
 
 # get standard deviation
-red_SD <- the_red_album %>% summarize(dan=sd(danceability), 
+SD_red <- the_red_album %>% summarize(dan=sd(danceability), 
                                      ene=sd(energy), 
                                      lou=sd(loudness), 
                                      spe=sd(speechiness), 
@@ -43,7 +45,7 @@ red_SD <- the_red_album %>% summarize(dan=sd(danceability),
                                      val=sd(valence), 
                                      tem=sd(tempo))
 
-blue_SD <- the_blue_album %>% summarize(dan=sd(danceability), 
+SD_blue <- the_blue_album %>% summarize(dan=sd(danceability), 
                                        ene=sd(energy), 
                                        lou=sd(loudness), 
                                        spe=sd(speechiness), 

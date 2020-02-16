@@ -5,8 +5,8 @@ library(spotifyr)
 
 # Set Spotify access variables (every time)
 
-Sys.setenv(SPOTIFY_CLIENT_ID = 'YOUR_CLIENT_ID')
-Sys.setenv(SPOTIFY_CLIENT_SECRET = 'YOUR_CLIENT_SECRET')
+Sys.setenv(SPOTIFY_CLIENT_ID = '63189d0ffa0d469ab97dfbe02cbcb356')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = '54e78dfb2ee24d3281756fde0417d7f9')
 
 # Download Grammy and Edison award playlists (pop) for 2019
 
@@ -104,3 +104,6 @@ awards %>%                       # Start with awards.
 #
 # Working in pairs, can you find a difference between the Eurovision songs from
 # 2019 and the pop charts for your country or countries of origin?
+
+# euro 37i9dQZF1DWVCKO3xAlT1Q
+# country 0pklZsCKkKtRbzY2xFazxC
