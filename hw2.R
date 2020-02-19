@@ -40,5 +40,4 @@ total$name <- str_sub(total$name, 1, str_length(total$name)-13)
 ggplot(total, aes(x=0, y=valence, col=playlist_name, size=(track.duration_ms/1000)/60)) + geom_boxplot(alpha=0.4) + facet_wrap(facet="name", nrow=1, ncol=13, shrink = TRUE) + scale_color_manual(values= c("#bf0d00", "#03b5fc")) + scale_x_continuous(breaks=c(0, 0.5, 1)) + theme(legend.position="bottom") + labs(x="Energy", y="Valence", size="Duration in min", col="")
 
 
-ggplot(total, aes(x=energy, y=valence, col=playlist_name, size=(track.duration_ms/1000)/60)) + geom_point(alpha=0.4) + facet_wrap(facet="name", nrow=1, ncol=13, shrink = TRUE) + scale_color_manual(values= c("#bf0d00", "#03b5fc")) + scale_x_continuous(breaks=c(0, 0.5, 1)) + theme(legend.position="bottom") + labs(x="Energy", y="Valence", size="Duration in min", col="")
-
+ggplot(total, aes(x=energy, y=valence, col=playlist_name, size=(track.duration_ms/1000)/60)) + geom_point(alpha=0.4) + facet_wrap(facet="name", nrow=1, ncol=13, shrink = TRUE) + scale_color_manual(values= c("#03b5fc", "#bf0d00")) + scale_x_continuous(breaks=c(0, 0.5, 1)) + theme(legend.position="bottom") + labs(x="Energy", y="Valence", size="Duration in min", col="")

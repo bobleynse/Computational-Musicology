@@ -1,0 +1,91 @@
+---
+title:  'Computational Musicology'
+author: 'John Ashley Burgoyne'
+date:   'February--March 2020'
+output: 
+    flexdashboard::flex_dashboard:
+        storyboard: true
+        theme: flatly
+---
+
+```{r setup}
+# In order to use these packages, we need to install flexdashboard, plotly, and Cairo.
+library(tidyverse)
+library(plotly)
+library(spotifyr)
+source('spotify.R')
+```
+
+### Introduction
+
+This is introductory text. In general, it is not possible to use headers in this text.
+
+***
+
+This is a second column of introductory text.
+
+
+### The Grammys are angrier than the Edisons
+
+```{r}
+grammy <- get_playlist_audio_features('digster.fm', '4kQovkgBZTd8h2HCM3fF31')
+edison <- get_playlist_audio_features('spotify', '37i9dQZF1DX8mnKbIkppDf')
+awards <-
+    grammy %>% mutate(playlist = "Grammys") %>%
+    bind_rows(edison %>% mutate(playlist = "Edisons"))
+angry <-
+    awards %>%                   # Start with awards.
+    mutate(                      # Make pretty labels for mode.
+        mode =                  
+            factor(
+                mode, 
+                c(1, 0), 
+                c("Major", "Minor")
+            )
+    ) %>% 
+    ggplot(                      # Set up the plot.
+        aes(
+            x = valence,
+            y = energy,
+            size = loudness,
+            colour = mode,
+            label = track.name   # Labels will be interactively visible.
+        )
+    ) +
+    geom_point() +               # Scatter plot.
+    geom_rug(size = 0.1) +       # Add 'fringes' to show data distribution.
+    facet_wrap(~ playlist) +     # Separate charts per playlist.
+    scale_x_continuous(          # Fine-tune the x axis.
+        limits = c(0, 1),
+        breaks = c(0, 0.50, 1),  # Use grid-lines for quadrants only.
+        minor_breaks = NULL      # Remove 'minor' grid-lines.
+    ) +
+    scale_y_continuous(          # Fine-tune the y axis in the same way.
+        limits = c(0, 1),
+        breaks = c(0, 0.50, 1),
+        minor_breaks = NULL
+    ) +
+    scale_colour_brewer(         # Use the Color Brewer to choose a palette.
+        type = "qual",           # Qualitative set.
+        palette = "Paired"       # Name of the palette is 'Paired'.
+    ) +
+    scale_size_continuous(       # Fine-tune the sizes of each point.
+        trans = "exp",           # Use an exp transformation to emphasise loud.
+        guide = "none"           # Remove the legend for size.
+    ) +
+    theme_light() +              # Use a simpler them.
+    labs(                        # Make the titles nice.
+        x = "Valence",
+        y = "Energy",
+        colour = "Mode"
+    )
+ggplotly(angry)
+```
+
+***
+
+For this visualisation from Week 7, I took playlists of the pop music presented at the Grammy awards (US) and the Edison awards (NL) in 2019. Using `ggplotly`, the visualisation became interactive.
+
+The *x* axis shows valence and the *y* axis shows Spotify's ‘energy’ feature, which is roughly analogous to the notion of arousal in psychological research on emotion. Under this model, the quadrants of each graph, starting clockwise from the top left, represent angry, happy, relaxed, and sad music. The size of each point is proportional to the average volume of the track.
+
+The visualisation shows that in 2019, the pop music at the Grammys was (according to Spotify) rather angrier and rather louder than the music at the Edisons.
