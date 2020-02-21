@@ -13,73 +13,37 @@ output:
 library(tidyverse)
 library(plotly)
 library(spotifyr)
+library(stringr)
 source('spotify.R')
 ```
 
 ### Introduction
 
-This is introductory text. In general, it is not possible to use headers in this text.
-
+Lorem ipsum
 ***
 
-This is a second column of introductory text.
+Lorem ipsum
 
 
 ### The Grammys are angrier than the Edisons
 
 ```{r}
-grammy <- get_playlist_audio_features('digster.fm', '4kQovkgBZTd8h2HCM3fF31')
-edison <- get_playlist_audio_features('spotify', '37i9dQZF1DX8mnKbIkppDf')
-awards <-
-    grammy %>% mutate(playlist = "Grammys") %>%
-    bind_rows(edison %>% mutate(playlist = "Edisons"))
-angry <-
-    awards %>%                   # Start with awards.
-    mutate(                      # Make pretty labels for mode.
-        mode =                  
-            factor(
-                mode, 
-                c(1, 0), 
-                c("Major", "Minor")
-            )
-    ) %>% 
-    ggplot(                      # Set up the plot.
-        aes(
-            x = valence,
-            y = energy,
-            size = loudness,
-            colour = mode,
-            label = track.name   # Labels will be interactively visible.
-        )
-    ) +
-    geom_point() +               # Scatter plot.
-    geom_rug(size = 0.1) +       # Add 'fringes' to show data distribution.
-    facet_wrap(~ playlist) +     # Separate charts per playlist.
-    scale_x_continuous(          # Fine-tune the x axis.
-        limits = c(0, 1),
-        breaks = c(0, 0.50, 1),  # Use grid-lines for quadrants only.
-        minor_breaks = NULL      # Remove 'minor' grid-lines.
-    ) +
-    scale_y_continuous(          # Fine-tune the y axis in the same way.
-        limits = c(0, 1),
-        breaks = c(0, 0.50, 1),
-        minor_breaks = NULL
-    ) +
-    scale_colour_brewer(         # Use the Color Brewer to choose a palette.
-        type = "qual",           # Qualitative set.
-        palette = "Paired"       # Name of the palette is 'Paired'.
-    ) +
-    scale_size_continuous(       # Fine-tune the sizes of each point.
-        trans = "exp",           # Use an exp transformation to emphasise loud.
-        guide = "none"           # Remove the legend for size.
-    ) +
-    theme_light() +              # Use a simpler them.
-    labs(                        # Make the titles nice.
-        x = "Valence",
-        y = "Energy",
-        colour = "Mode"
-    )
-ggplotly(angry)
+# import albums
+the_red_album <- get_playlist_audio_features('bobleynse', '0ghyYvT2B8me30mShW8pUB')
+the_blue_album <- get_playlist_audio_features('bobleynse', '0UfoFrm53Q2G7kuQMjchvs')
+
+# preprocess data
+total <- rbind(the_red_album, the_blue_album)
+total <- unite(total, "name", track.album.release_date, track.album.name, sep="\n")
+total$name <- str_sub(total$name, 1, str_length(total$name)-13)
+
+# make the plot
+Valence_energy <- ggplot(total, aes(x=energy, y=valence, col=playlist_name, size=(track.duration_ms/1000)/60)) + geom_point(alpha=0.4) + facet_wrap(facet="name", nrow=1, ncol=13, shrink = TRUE) + scale_color_manual(values= c("#03b5fc", "#bf0d00")) + scale_x_continuous(breaks=c(0, 0.5, 1)) + theme(legend.position="bottom", strip.text.x = element_text(angle = 90)) + labs(x="Energy", y="Valence", size="Duration in min", col="")
+
+
+
+
+ggplotly(Valence_energy)
 ```
 
 ***
