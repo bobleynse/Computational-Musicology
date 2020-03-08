@@ -15,9 +15,277 @@ library(plotly)
 library(spotifyr)
 library(stringr)
 library(compmus)
+library(scales)
 source('spotify.R')
 ```
-### A lot of repetition visible in the Come Together Self-Similarity
+
+### **The two phases of The Beatles** {data-commentary-width=800}
+
+<h2>The two phases of The Beatles</h2>
+In 1973, three years after the break-up of the Beatles, two compilation albums were released: 
+<span style='color:red'><b>The Red Album</b></span> and <span style='color:blue'><b>The Blue Album</b></span>. The red album contains a collection of the best songs of the 7 albums made between 1962-1966. The blue album contains a collection of the best songs from the 6 albums released between 1967-1970.
+
+An interesting question is, why decided Apple Records to split up the songs in two compilation albums instead of releasing one all-embracing album. According to Mark Steffen[1], the lifetime of the Beatles can be divided into different phases. He calls the time of The Red Album a phase where the songs were "dance songs whose themes were girls and falling in love." After this phase the Beatles changed, they only wrote songs in the studio, became more individualistic and they grew their hair. The songs in time of The blue Album had a different theme and sound as the group explored many new forms of music. The most famous example is the adding of a sitar in their song.
+
+That the Beatles changed during their lifetime is clear, but was 1967 a clear turning point to split up the two compilation albums? Or is there a better point in time to divide their music?
+
+***
+
+<img src="beatles.jpg" width="100%">
+
+### **Used playlists** {data-commentary-width=300}
+
+<h2>Songs used shown per album per period</h2>
+```{r}
+# import albums
+the_red_album <- get_playlist_audio_features('bobleynse', '0ghyYvT2B8me30mShW8pUB')
+the_blue_album <- get_playlist_audio_features('bobleynse', '0UfoFrm53Q2G7kuQMjchvs')
+
+# merge datasets
+total1 <- rbind(the_red_album, the_blue_album)
+total1$track.album.name <- str_sub(total1$track.album.name, 1, str_length(total1$track.album.name)-13)
+total1$track.name <- str_sub(total1$track.name, 1, str_length(total1$track.name)-18)
+
+datasets <- (
+  ggplot(total1, aes(x=playlist_name, fill=track.album.name, size=track.name, text=paste("Album:", track.album.name, "\nSong:", track.name))) 
+  + geom_bar()
+  + theme(legend.position = "none", axis.text.x=element_blank(), axis.title.x=element_blank())
+  + xlab("Playlist") + ylab("Number of songs")
+  # + scale_fill_manual(values= c("#03b5fc", "#bf0d00", "#03b5fc", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00")) 
+  + facet_wrap(~playlist_name)
+)
+ggplotly(datasets, tooltip = c("text"))
+```
+
+***
+
+In this plot can be seen that in both periods almost the same number of songs were written. Hover to get the song and album information.
+
+<b>The Red Album</b>
+<img src="red.jpg" width="60%">
+
+<b>The Blue Album</b>
+<img src="blue.jpg" width="60%">
+
+### **The Beatles changed over time**
+
+<h2>Valence, energy and duration over time per album</h2>
+```{r}
+# merge datasets
+total <- rbind(the_red_album, the_blue_album)
+total$track.album.name <- str_sub(total$track.album.name, 1, str_length(total$track.album.name)-13)
+total$track.name <- str_sub(total$track.name, 1, str_length(total$track.name)-18)
+
+# make the plot
+Valence_energy <- (
+  ggplot(total, aes(x=energy, y=valence, col=playlist_name, size=((track.duration_ms/1000)), text=paste("Song:", track.name, "\nAlbum:", track.album.name, "\nDuration:", (track.duration_ms/1000))))
+  + geom_point(alpha=0.4) 
+  + facet_wrap(facet="track.album.release_date", nrow=1, ncol=13, labeller=label_wrap_gen(width=10)) 
+  + scale_color_manual(values= c("#03b5fc", "#bf0d00")) 
+  + scale_x_continuous(breaks=c(0, 0.5, 1)) 
+  + labs(x="Energy", y="Valence", col="Period" ,size="Duration in min")
+  + theme(panel.spacing.x=unit(0.1, "lines"), legend.position="bottom", legend.box = "vertical") 
+  + ggtitle("Valence and energy over time per album")
+  )
+
+ggplotly(Valence_energy, height=400, width=1200, tooltip = c("text", "x", "y")) %>%
+  layout(legend = list(orientation = "h", x = 0.1, y =-0.1))
+```
+
+***
+
+<b>In this plot you can see the following things:</b>
+<ul>
+  <li>Valence (positiveness) per song</li>
+  <li>Energy per song</li>
+  <li>Duration per song in seconds</li>
+</ul>
+
+The songs are ordered by year and album.
+
+<b>Three interesting things are visable:</b>
+<ul>
+  <li>It looks like the <u>valence</u> becomes lower over time</li>
+  <li>It looks like the <u>energy</u> becomes lower over time</li>
+  <li>These two categories become more spread out.</li>
+</ul>
+
+### **A downward trend in valence and energy visible.** {data-commentary-width=600}
+
+<h2><span style='color:lightgreen'><b>Valence</b></span> and <span style='color:orange'><b>Energy</b></span> over time per album.</h2>
+
+```{r}
+
+means <- total %>%
+  group_by(track.album.release_date) %>%
+  summarize(mean_valence = mean(valence), mean_energy = mean(energy), 
+            release_date = first(track.album.release_date), 
+            playlist_name = first(playlist_name),
+            album_name = first(track.album.name))
+
+means$release_date <- as.Date(means$release_date)
+
+ff <- (
+  ggplot(means, aes(x=release_date, group=0.5, text=paste("Album:", album_name, "\nRelease:", release_date, "\nMean valence:", mean_valence, "\nMean energy:", mean_energy))) + 
+    geom_line(aes(y=mean_valence, col='Mean valence'), col='green') +
+    geom_line(aes(y=mean_energy, col='Mean energy'), col='orange') +
+    ylim(0,1) +
+    scale_x_date(labels = date_format("%d-%m-%Y")) +
+    geom_text(aes(y=((mean_valence+mean_energy)/2)-0.2, x=release_date, label=album_name), size=3) +
+    geom_segment(aes(x=release_date, xend=release_date, y=((mean_valence+mean_energy)/2)-0.2, yend=mean_valence), size=2, alpha=0.1, linetype="dotted", col=c('red', 'red', 'red', 'red', 'red', 'red', 'red', 'blue', 'blue', 'blue', 'blue', 'blue', 'blue')) +
+    xlab("Date") +
+    ylab("Value")
+)
+
+ggplotly(ff, tooltip = c("text"))
+```
+
+***
+
+There is a downward trend visible in valence and energy.
+
+### **The chroma analysis of Abbey Road song come together.** {data-commentary-width=600}
+
+```{r}
+# construct chroma analysis
+CA_CT <- 
+    get_tidy_audio_analysis('6lSxM9BKcEZBSDKl2VODsF') %>% 
+    select(segments) %>% unnest(segments) %>% 
+    select(start, duration, pitches)
+
+CA_CT %>% 
+    mutate(pitches = map(pitches, compmus_normalise, 'euclidean')) %>% 
+    compmus_gather_chroma %>% 
+      ggplot(aes(x = start + duration / 2, width = duration, y = pitch_class, fill = value)) + 
+      geom_tile() +
+      labs(x = 'Time (s)', y = NULL, fill = 'hot') + theme_gray()
+
+
+```
+
+***
+<h2>Chroma analysis of the song come together</h2>
+The extracted notes are pretty good. The song is written in D-minor, which also is visible in the chroma feature. Also interesting is to see is that mainly D and C# are used a lot in the end of the song. This is correct and part of the outro.
+
+### **Chordograms and Keygrams don't like The Beatles** {data-commentary-width=600}
+
+```{r}
+
+circshift <- function(v, n) {if (n == 0) v else c(tail(v, n), head(v, -n))}
+                                    
+    # C     C#    D     Eb    E     F     F#    G     Ab    A     Bb    B 
+major_chord <- 
+    c(1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    0,    0)
+minor_chord <- 
+    c(1,    0,    0,    1,    0,    0,    0,    1,    0,    0,    0,    0)
+seventh_chord <- 
+    c(1,    0,    0,    0,    1,    0,    0,    1,    0,    0,    1,    0)
+major_key <- 
+    c(6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88)
+minor_key <-
+    c(6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17)
+chord_templates <-
+    tribble(
+        ~name  , ~template,
+        'Gb:7'  , circshift(seventh_chord,  6),
+        'Gb:maj', circshift(major_chord,    6),
+        'Bb:min', circshift(minor_chord,   10),
+        'Db:maj', circshift(major_chord,    1),
+        'F:min' , circshift(minor_chord,    5),
+        'Ab:7'  , circshift(seventh_chord,  8),
+        'Ab:maj', circshift(major_chord,    8),
+        'C:min' , circshift(minor_chord,    0),
+        'Eb:7'  , circshift(seventh_chord,  3),
+        'Eb:maj', circshift(major_chord,    3),
+        'G:min' , circshift(minor_chord,    7),
+        'Bb:7'  , circshift(seventh_chord, 10),
+        'Bb:maj', circshift(major_chord,   10),
+        'D:min' , circshift(minor_chord,    2),
+        'F:7'   , circshift(seventh_chord,  5),
+        'F:maj' , circshift(major_chord,    5),
+        'A:min' , circshift(minor_chord,    9),
+        'C:7'   , circshift(seventh_chord,  0),
+        'C:maj' , circshift(major_chord,    0),
+        'E:min' , circshift(minor_chord,    4),
+        'G:7'   , circshift(seventh_chord,  7),
+        'G:maj' , circshift(major_chord,    7),
+        'B:min' , circshift(minor_chord,   11),
+        'D:7'   , circshift(seventh_chord,  2),
+        'D:maj' , circshift(major_chord,    2),
+        'F#:min', circshift(minor_chord,    6),
+        'A:7'   , circshift(seventh_chord,  9),
+        'A:maj' , circshift(major_chord,    9),
+        'C#:min', circshift(minor_chord,    1),
+        'E:7'   , circshift(seventh_chord,  4),
+        'E:maj' , circshift(major_chord,    4),
+        'G#:min', circshift(minor_chord,    8),
+        'B:7'   , circshift(seventh_chord, 11),
+        'B:maj' , circshift(major_chord,   11),
+        'D#:min', circshift(minor_chord,    3))
+
+key_templates <-
+    tribble(
+        ~name    , ~template,
+        'Gb:maj', circshift(major_key,  6),
+        'Bb:min', circshift(minor_key, 10),
+        'Db:maj', circshift(major_key,  1),
+        'F:min' , circshift(minor_key,  5),
+        'Ab:maj', circshift(major_key,  8),
+        'C:min' , circshift(minor_key,  0),
+        'Eb:maj', circshift(major_key,  3),
+        'G:min' , circshift(minor_key,  7),
+        'Bb:maj', circshift(major_key, 10),
+        'D:min' , circshift(minor_key,  2),
+        'F:maj' , circshift(major_key,  5),
+        'A:min' , circshift(minor_key,  9),
+        'C:maj' , circshift(major_key,  0),
+        'E:min' , circshift(minor_key,  4),
+        'G:maj' , circshift(major_key,  7),
+        'B:min' , circshift(minor_key, 11),
+        'D:maj' , circshift(major_key,  2),
+        'F#:min', circshift(minor_key,  6),
+        'A:maj' , circshift(major_key,  9),
+        'C#:min', circshift(minor_key,  1),
+        'E:maj' , circshift(major_key,  4),
+        'G#:min', circshift(minor_key,  8),
+        'B:maj' , circshift(major_key, 11),
+        'D#:min', circshift(minor_key,  3))
+
+BB <- 
+  get_tidy_audio_analysis('6lSxM9BKcEZBSDKl2VODsF') %>% 
+  # change these 3 to adjust the timestamps (beats, bars, sections)
+  compmus_align(sections, segments) %>% 
+  select(sections) %>% unnest(sections) %>% 
+  mutate(
+    pitches = 
+      map(segments, 
+          compmus_summarise, pitches, 
+          method = 'mean', norm = 'manhattan'))
+
+BB %>% 
+  compmus_match_pitch_template(key_templates, 'euclidean', 'manhattan') %>% 
+  ggplot(
+    aes(x = start + duration / 2, width = duration, y = name, fill = d)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = 'A', guide = 'none') +
+  theme_minimal() +
+  labs(x = 'Time (s)', y = '')
+```
+
+***
+
+<h2>Chordogram of the song come together</h2>
+
+When we look at this chordogram, you'll think the key of this song is C minor or Eb major. The internet disagrees, <i>tabs.ultimate-guitar.com</i> says the key is Dm and also when I play along on the piano, I think Dm is the right key.
+
+<b> Two possible reasons why the results are so bad:</b>
+<ul>
+  <li>The song doesn't have a lot of triads.</li>
+  <li>The pitch is not based on 440Hz</li>
+</ul>
+The last reason is possible because it was harder to tune your instruments in the 60s. Also, the producers speeded the songs which adjusted the key of a song.
+
+### **A lot of repetition visible in the Come Together Self-Similarity** {data-commentary-width=600}
 
 ```{r}
 # construct the Self-Similarity Matrices
@@ -46,99 +314,11 @@ CG_CT %>%
 
 ***
 
+<h2>Self-Similarity Matrix of the song Come Together</h2>
+
 In the Self-Similarity Matrix, it is visible that Come Together is a structured song with a lot of repeating parts. Notice that the chorus of the song is fairly short, but repeats four times. Also, interesting to see is that at the same timestamp, the most used notes change in the chroma analysis.
 
-The last interesting thing is that, like in the chroma analysis, the outro is clearly visible and repeats itself a lot.
-
-### **The two phases of The Beatles** {data-commentary-width=1200}
-
-In 1973, three years after the break-up of the Beatles, two compilation albums were released: 
-<span style='color:red'><b>The Red Album</b></span> and <span style='color:blue'><b>The Blue Album</b></span>. The red album contains a collection of the best songs of the 7 albums made between 1962-1966. The blue album contains a collection of the best songs from the 6 albums released between 1967-1970.
-
-An interesting question is, why decided Apple Records to split up the songs in two compilation albums instead of releasing one all-embracing album. According to Mark Steffen[1], the lifetime of the Beatles can be divided into different phases. He calls the time of The Red Album a phase where the songs were "dance songs whose themes were girls and falling in love." After this phase the Beatles changed, they only wrote songs in the studio, became more individualistic and they grew their hair. The songs in time of The blue Album had a different theme and sound as the group explored many new forms of music. The most famous example is the adding of a sitar in their song.
-
-That the Beatles changed during their lifetime is clear, but was 1967 a clear turning point to split up the two compilation albums? Or is there a better point in time to divide their music?
-
-***
-
-![The Beatles](beatles.jpg "Title")
-
-### **Used playlists**
-
-In this plot can be seen that in both almost the same number of songs were written. Hover to get the song and album information.
-```{r}
-
-
-# import albums
-the_red_album <- get_playlist_audio_features('bobleynse', '0ghyYvT2B8me30mShW8pUB')
-the_blue_album <- get_playlist_audio_features('bobleynse', '0UfoFrm53Q2G7kuQMjchvs')
-
-# merge datasets
-total1 <- rbind(the_red_album, the_blue_album)
-total1$track.album.name <- str_sub(total1$track.album.name, 1, str_length(total1$track.album.name)-13)
-total1$track.name <- str_sub(total1$track.name, 1, str_length(total1$track.name)-18)
-
-datasets <- (
-  ggplot(total1, aes(x=playlist_name, fill=track.album.name, size=track.name, text=paste("Album:", track.album.name, "\nSong:", track.name))) 
-  + geom_bar()
-  + theme(legend.position = "none", axis.text.x=element_blank(), axis.title.x=element_blank())
-  + xlab("Playlist") + ylab("Number of songs")
-  # + scale_fill_manual(values= c("#03b5fc", "#bf0d00", "#03b5fc", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00")) 
-  + facet_wrap(~playlist_name)
-)
-ggplotly(datasets, tooltip = c("text"))
-
-
-```
-
-### **The Beatles became more diverse and less positive over time**
-**Valence and energy over time per album**
-```{r}
-# import albums
-the_red_album <- get_playlist_audio_features('bobleynse', '0ghyYvT2B8me30mShW8pUB')
-the_blue_album <- get_playlist_audio_features('bobleynse', '0UfoFrm53Q2G7kuQMjchvs')
-
-# merge datasets
-total <- rbind(the_red_album, the_blue_album)
-total$track.album.name <- str_sub(total$track.album.name, 1, str_length(total$track.album.name)-13)
-total$track.name <- str_sub(total$track.name, 1, str_length(total$track.name)-18)
-
-# make the plot
-Valence_energy <- (
-  ggplot(total, aes(x=energy, y=valence, col=playlist_name, size=((track.duration_ms/1000)/60), text=paste("Song:", track.name, "\nAlbum:", track.album.name)))
-  + geom_point(alpha=0.4) 
-  + facet_wrap(facet="track.album.release_date", nrow=1, ncol=13, labeller=label_wrap_gen(width=10)) 
-  + scale_color_manual(values= c("#03b5fc", "#bf0d00")) 
-  + scale_x_continuous(breaks=c(0, 0.5, 1)) 
-  + labs(x="Energy", y="Valence", col="Period" ,size="Duration in min")
-  + theme(panel.spacing.x=unit(0.1, "lines"), legend.position="bottom", legend.box = "vertical") 
-  + ggtitle("Valence and energy over time per album")
-  )
-
-ggplotly(Valence_energy, height=400, width=1200, tooltip = c("text", "x", "y")) %>%
-  layout(legend = list(orientation = "h", x = 0.1, y =-0.1))
-```
-
-### **The chroma analysis of Abbey Road song come together.**
-```{r}
-# construct chroma analysis
-CA_CT <- 
-    get_tidy_audio_analysis('6lSxM9BKcEZBSDKl2VODsF') %>% 
-    select(segments) %>% unnest(segments) %>% 
-    select(start, duration, pitches)
-
-CA_CT %>% 
-    mutate(pitches = map(pitches, compmus_normalise, 'euclidean')) %>% 
-    compmus_gather_chroma %>% 
-      ggplot(aes(x = start + duration / 2, width = duration, y = pitch_class, fill = value)) + 
-      geom_tile() +
-      labs(x = 'Time (s)', y = NULL, fill = 'hot') + theme_gray()
-```
-
-***
-
-The extracted notes are pretty good. The song is written in D-minor, which also is visible in the chroma feature. Also interesting is to see is that mainly D and C# are used a lot in the end of the song. This is correct and part of the outro.
-
+The last interesting thing is that, like in the chroma analysis and the chordogram, the outro is clearly visible and repeats itself a lot.
 
 ### **Conclusion**
 
