@@ -33,7 +33,7 @@ That the Beatles changed during their lifetime is clear, but was 1967 a clear tu
 
 <img src="beatles.jpg" width="100%">
 
-### **Used playlists** {data-commentary-width=300}
+### **Used playlists** {data-commentary-width=400}
 
 <h2>Songs used shown per album per period</h2>
 ```{r}
@@ -47,7 +47,7 @@ total1$track.album.name <- str_sub(total1$track.album.name, 1, str_length(total1
 total1$track.name <- str_sub(total1$track.name, 1, str_length(total1$track.name)-18)
 
 datasets <- (
-  ggplot(total1, aes(x=playlist_name, fill=track.album.name, size=track.name, text=paste("Album:", track.album.name, "\nSong:", track.name))) 
+  ggplot(total1, aes(x=0, fill=track.album.name, size=track.name, text=paste("Album:", track.album.name, "\nSong:", track.name))) 
   + geom_bar()
   + theme(legend.position = "none", axis.text.x=element_blank(), axis.title.x=element_blank())
   + xlab("Playlist") + ylab("Number of songs")
@@ -62,12 +62,14 @@ ggplotly(datasets, tooltip = c("text"))
 In this plot can be seen that in both periods almost the same number of songs were written. Hover to get the song and album information.
 
 <b>The Red Album</b>
-<img src="red.jpg" width="60%">
+
+<img src="red.jpg" width="50%">
 
 <b>The Blue Album</b>
-<img src="blue.jpg" width="60%">
 
-### **The Beatles changed over time**
+<img src="blue.jpg" width="50%">
+
+### **The Beatles changed over time** {data-commentary-width=400}
 
 <h2>Valence, energy and duration over time per album</h2>
 ```{r}
@@ -88,7 +90,7 @@ Valence_energy <- (
   + ggtitle("Valence and energy over time per album")
   )
 
-ggplotly(Valence_energy, height=400, width=1200, tooltip = c("text", "x", "y")) %>%
+ggplotly(Valence_energy, height=400, tooltip = c("text", "x", "y")) %>%
   layout(legend = list(orientation = "h", x = 0.1, y =-0.1))
 ```
 
@@ -165,6 +167,9 @@ CA_CT %>%
 
 ***
 <h2>Chroma analysis of the song come together</h2>
+<div style="background-color:black">
+<iframe src="https://open.spotify.com/embed/track/6lSxM9BKcEZBSDKl2VODsF" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+</div>
 The extracted notes are pretty good. The song is written in D-minor, which also is visible in the chroma feature. Also interesting is to see is that mainly D and C# are used a lot in the end of the song. This is correct and part of the outro.
 
 ### **Chordograms and Keygrams don't like The Beatles** {data-commentary-width=600}
@@ -276,6 +281,8 @@ BB %>%
 
 <h2>Chordogram of the song come together</h2>
 
+<iframe src="https://open.spotify.com/embed/track/6lSxM9BKcEZBSDKl2VODsF" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+
 When we look at this chordogram, you'll think the key of this song is C minor or Eb major. The internet disagrees, <i>tabs.ultimate-guitar.com</i> says the key is Dm and also when I play along on the piano, I think Dm is the right key.
 
 <b> Two possible reasons why the results are so bad:</b>
@@ -316,12 +323,91 @@ CG_CT %>%
 
 <h2>Self-Similarity Matrix of the song Come Together</h2>
 
-In the Self-Similarity Matrix, it is visible that Come Together is a structured song with a lot of repeating parts. Notice that the chorus of the song is fairly short, but repeats four times. Also, interesting to see is that at the same timestamp, the most used notes change in the chroma analysis.
+<iframe src="https://open.spotify.com/embed/track/6lSxM9BKcEZBSDKl2VODsF" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
 
-The last interesting thing is that, like in the chroma analysis and the chordogram, the outro is clearly visible and repeats itself a lot.
+
+In the Self-Similarity Matrix, it is visible that Come Together is a structured song with a lot of repeating parts. <b>Notice that:</b> 
+<ul>
+  <li>The chorus of the song is fairly short, but repeats four times.</li>
+  <li>The chorus is also visible at the previous page at the same timestamp</li>
+  <li>like in the chroma analysis and the chordogram, the outro is clearly visible and repeats itself a lot.</li>
+</ul>
+
+### **Different takes of the song Come Together** {data-commentary-width=600}
+
+```{r}
+CTO <- 
+  get_tidy_audio_analysis('6lSxM9BKcEZBSDKl2VODsF') %>% 
+  select(segments) %>% unnest(segments) %>% 
+  select(start, duration, pitches)
+CT5 <- 
+  get_tidy_audio_analysis('5c6gzvWGw9EZ7qMxfH9HVy') %>% 
+  select(segments) %>% unnest(segments) %>% 
+  select(start, duration, pitches)
+
+plotje <- compmus_long_distance(
+  CTO %>% mutate(pitches = map(pitches, compmus_normalise, 'chebyshev')),
+  CT5 %>% mutate(pitches = map(pitches, compmus_normalise, 'chebyshev')),
+  feature = pitches,
+  method = 'euclidean') %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2, 
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d)) + 
+  geom_tile() +
+  scale_fill_continuous(type = 'viridis', guide = 'none') +
+  labs(x = 'Original', y = 'Take 5') +
+  theme_minimal()
+
+plotje
+```
+
+***
+
+<h2>Dynamic timewarp of two different versions of the song Come Together</h2>
+<iframe src="https://open.spotify.com/embed/track/6lSxM9BKcEZBSDKl2VODsF" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+<iframe src="https://open.spotify.com/embed/track/5c6gzvWGw9EZ7qMxfH9HVy" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+
+<b>The following things are visible:</b>
+<ul>
+  <li>Repetition, because several diagonal lines are visible. The are spread out over the plot because they changed the structure of the song.</li>
+  <li>Homogeneity, because there are a lot of big blocks visible.</li>
+</ul>
+In these blocks, you can see the verses that are similar but different because it was sung a little bit different in comparison to the original take.
+
+### **Lucy's tempo is all over the place** {data-commentary-width=400}
+
+```{r}
+lucy <- get_tidy_audio_analysis('25yQPHgC35WNnnOUqFhgVR')
+
+lucy_plot <- lucy %>% 
+    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE, bpms = 40:160) %>% 
+    ggplot(aes(x = time, y = bpm, fill = power)) + 
+    geom_raster() + 
+    scale_fill_viridis_c(guide = 'none') +
+    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
+    theme_classic()
+
+lucy_plot
+```
+
+***
+
+<h2>Tempogram of Lucy in the sky with Diamonds</h2>
+<iframe src="https://open.spotify.com/embed/track/25yQPHgC35WNnnOUqFhgVR" width="382" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+
+As you can see and hear, the tempo changes a lot over time. Because that it is interesting to look at the tempo detected in the Spotify features.
+The detected tempo is <b>65.09 <i>bpm</i></b>.
+
+It's interesting to see Spotify picked this bpm beacuse it's not an average of the song, but just a random point somewhere during the song.
+
 
 ### **Conclusion**
-
+<div style="max-width:600px; margin: 0 auto;">
 In the plots, you can see The Beatles changed over time. They started as a band with high energy and valence, but in a few years, they evolved into a more diverse band with songs with high and low energy and high and low valence.
 
 For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look at Spotify's features.
+</div>
