@@ -17,7 +17,21 @@ library(stringr)
 library(compmus)
 library(scales)
 source('spotify.R')
+
+# import albums
+the_red_album <- get_playlist_audio_features('bobleynse', '0ghyYvT2B8me30mShW8pUB')
+the_blue_album <- get_playlist_audio_features('bobleynse', '0UfoFrm53Q2G7kuQMjchvs')
+# merge datasets
+total1 <- rbind(the_red_album, the_blue_album)
+total1$track.album.name <- str_sub(total1$track.album.name, 1, str_length(total1$track.album.name)-13)
+total1$track.name <- str_sub(total1$track.name, 1, str_length(total1$track.name)-18)
 ```
+
+<style>
+  body {
+  background:black;
+  }
+</style>
 
 ### **The two phases of The Beatles** {data-commentary-width=800}
 
@@ -26,7 +40,8 @@ source('spotify.R')
 In 1973, three years after the break-up of the Beatles, two compilation albums were released: 
 <span style='color:red'><b>The Red Album</b></span> and <span style='color:blue'><b>The Blue Album</b></span>. The red album contains a collection of the best songs of the 7 albums made between 1962-1966. The blue album contains a collection of the best songs from the 6 albums released between 1967-1970.
 
-An interesting question is, why decided Apple Records to split up the songs in two compilation albums instead of releasing one all-embracing album. According to Mark Steffen[1], the lifetime of the Beatles can be divided into different phases. He calls the time of The Red Album a phase where the songs were "dance songs whose themes were girls and falling in love." After this phase the Beatles changed, they only wrote songs in the studio, became more individualistic and they grew their hair. The songs in time of The blue Album had a different theme and sound as the group explored many new forms of music. The most famous example is the adding of a sitar in their song.
+An interesting question is: "why decided Apple Records to split up the songs in two compilation albums instead of releasing one all-embracing album." According to Mark Steffen[1], the lifetime of the Beatles can be divided into different phases. He calls the time of The Red Album a phase where the songs were "dance songs whose themes were girls and falling in love." After this phase the Beatles changed, they only wrote songs in the studio, became more individualistic and they grew their hair. The songs in time of The blue Album had a different theme and sound as the group explored many new forms of music. The most famous example is the adding of a sitar in their song.
+Another possible reason is that in 1966 the so-called Studio years began. This is the period where they started to use more hours of studio time to record their album.
 
 That the Beatles changed during their lifetime is clear, but was 1967 a clear turning point to split up the two compilation albums? Or is there a better point in time to divide their music?
 </div>
@@ -35,43 +50,7 @@ That the Beatles changed during their lifetime is clear, but was 1967 a clear tu
 
 <img src="beatles.jpg" width="100%">
 
-### **Used playlists** {data-commentary-width=400}
-
-<h2>Songs used shown per album per period</h2>
-```{r}
-# import albums
-the_red_album <- get_playlist_audio_features('bobleynse', '0ghyYvT2B8me30mShW8pUB')
-the_blue_album <- get_playlist_audio_features('bobleynse', '0UfoFrm53Q2G7kuQMjchvs')
-
-# merge datasets
-total1 <- rbind(the_red_album, the_blue_album)
-total1$track.album.name <- str_sub(total1$track.album.name, 1, str_length(total1$track.album.name)-13)
-total1$track.name <- str_sub(total1$track.name, 1, str_length(total1$track.name)-18)
-
-datasets <- (
-  ggplot(total1, aes(x=0, fill=track.album.name, size=track.name, text=paste("Album:", track.album.name, "\nSong:", track.name))) 
-  + geom_bar()
-  + theme(legend.position = "none", axis.text.x=element_blank(), axis.title.x=element_blank())
-  + xlab("Playlist") + ylab("Number of songs")
-  # + scale_fill_manual(values= c("#03b5fc", "#bf0d00", "#03b5fc", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00", "#bf0d00")) 
-  + facet_wrap(~playlist_name)
-)
-ggplotly(datasets, tooltip = c("text"))
-```
-
-***
-
-In this plot can be seen that in both periods almost the same number of songs were written. Hover to get the song and album information.
-
-<b>The Red Album</b>
-
-<img src="red.jpg" width="50%">
-
-<b>The Blue Album</b>
-
-<img src="blue.jpg" width="50%">
-
-### **The Beatles changed over time** {data-commentary-width=600}
+### **Did The Beatles change over time?** {data-commentary-width=600}
 
 ```{r}
 # get means
@@ -101,7 +80,6 @@ M_dif <- total1 %>%
               )
 M <- rbind(tail(M_dif, 1), head(M_dif, 1))
 MF <- M %>% mutate(year=c('1963-1966\nThe Beatles in time of <span style="color:red"><b>The Red Album</b></span>', '1967-1970\nThe Beatles in time of <span style="color:blue"><b>The Blue Album</b></span>'))
-
 plot <- (
   ggplot(MF) 
   + geom_point(aes(x=year, y=dan, size=dansd, text=paste("<b>Danceability</b>\nValue:", dan, "\nSD:", dansd), alpha=0.5), col='green') 
@@ -146,27 +124,66 @@ ggplotly(plot, tooltip = c("text"))
 
 ***
 
+<div>
 <h2>Difference in mean features per phase</h2>
+<p>
+It is visible that some features changed a lot over time. The percentual differences of the features in the following tables the biggest were the biggest:
+</p>
+<p>
+<b>The biggest differences in value usable:</b>
+<table>
+<tr>
+  <th><b>Feature</b></th>
+  <th><b>Difference</b></th>
+</tr>
+<tr>
+  <td><span style='color:blue'>Valence</span></td>
+  <td>-30.5%</td>
+</tr>
+<tr>
+  <td><span style='color:red'>Energy</span></td>
+  <td>-19.5%</td>
+</tr>
+<tr>
+  <td><span style='color:lightgreen'>Danceability</span></td>
+  <td>-10.6%</td>
+</tr>
+</table>
+</p>
 
-<b>The biggest differences usable:</b>
-<ul>
-<li>Valence (percentage)</li>
-<li>Energy (percenteage)</li>
-<li>Danceability (percenteage)</li>
-</ul>
+<p>
+<b>The biggest differences in standard deviation usable:</b>
+<table>
+<tr>
+  <th><b>Feature</b></th>
+  <th><b>Difference</b></th>
+</tr>
+<tr>
+  <td><span style='color:blue'>Valence</span></td>
+  <td>55.0%</td>
+</tr>
+<tr>
+  <td><span style='color:lightgreen'>Danceability</span></td>
+  <td>38.1%</td>
+</tr>
+<tr>
+  <td><span style='color:red'>Energy</span></td>
+  <td>-29.8%</td>
+</tr>
+</table>
+</p>
+When you look to the plot it also looks like liveness, speechiness, instrumentalness and acousticness change a lot. However, when you look at Spotify's <a href="https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/">feature distributions</a> you only see small peaks, instead of equally distributed plots. This is the result of the fact that these features give a likelihood whether a feature is true or not. In case of The Beatles these features didn't seem very usable. For example, the average likelihood for a liveness increased from 0.19% to 0.26%, but the Spotify site mentions that: "a value above 0.8 provides strong likelihood that the track is live."
+</div>
 
-When you look to the plot it also looks like liveness, speechiness, instrumentalness and acousticness change a lot. However, when you look at Spotify's <a href="https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/">feature distributions</a> you see small peaks. This is the result of the fact that these features give a likelihood whether a feature is true or not. This will be less reliable to use for a change over time.
 
+### **How did they change?** {data-commentary-width=600}
 
-### **The Beatles changed over time** {data-commentary-width=400}
-
-<h2>Valence, energy and danceability over time per album</h2>
+<b>Valence, energy and danceability(size) over time per album per song</b>
 ```{r}
 # merge datasets
 total <- rbind(the_red_album, the_blue_album)
 total$track.album.name <- str_sub(total$track.album.name, 1, str_length(total$track.album.name)-13)
 total$track.name <- str_sub(total$track.name, 1, str_length(total$track.name)-18)
-
 # make the plot
 Valence_energy <- (
   ggplot(total, aes(x=energy, y=valence, col=playlist_name, size=danceability, text=paste("Song:", track.name, "\nAlbum:", track.album.name, "\ndanceability:", danceability)))
@@ -176,34 +193,13 @@ Valence_energy <- (
   + scale_x_continuous(breaks=c(0, 0.5, 1)) 
   + labs(x="Energy", y="Valence", col="Period" ,size="Duration in min")
   + theme(panel.spacing.x=unit(0.1, "lines"), legend.position="bottom", legend.box = "vertical") 
-  + ggtitle("Valence, energy and danceability (size) over time per album")
   )
-
 ggplotly(Valence_energy, height=400, tooltip = c("text", "x", "y")) %>%
   layout(legend = list(orientation = "h", x = 0.1, y =-0.1))
 ```
 
 ***
-
-<b>In this plot you can see the following things:</b>
-<ul>
-  <li>Valence (positiveness) per song</li>
-  <li>Energy per song</li>
-  <li>Duration per song in seconds</li>
-</ul>
-
-The songs are ordered by year and album.
-
-<b>Three interesting things are visable:</b>
-<ul>
-  <li>It looks like the <u>valence</u> becomes lower over time</li>
-  <li>It looks like the <u>energy</u> becomes lower over time</li>
-  <li>These two categories become more spread out.</li>
-</ul>
-
-### **A downward trend in valence, danceability and energy visible.** {data-commentary-width=600}
-
-<h2><span style='color:lightgreen'><b>Valence</b></span>, <span style='color:purple'><b>Danceability</b></span> and <span style='color:orange'><b>Energy</b></span> over time per album.</h2>
+<b>Mean <span style='color:lightgreen'><b>Valence</b></span>, <span style='color:purple'><b>Danceability</b></span> and <span style='color:orange'><b>Energy</b></span> over time per album.</b>
 
 ```{r}
 means <- total %>%
@@ -211,33 +207,41 @@ means <- total %>%
   summarize(mean_valence = mean(valence),
             mean_energy = mean(energy),
             mean_danceability = mean(danceability),
+            mean_sd_valence = sd(valence),
+            mean_sd_energy = sd(energy),
+            mean_sd_danceability = sd(danceability),
             release_date = first(track.album.release_date), 
             playlist_name = first(playlist_name),
             album_name = first(track.album.name))
-
 means$release_date <- as.Date(means$release_date)
-
 ff <- (
   ggplot(means, aes(x=release_date, group=0.5, text=paste("Album:", album_name, "\nRelease:", release_date, "\nMean valence:", mean_valence, "\nMean energy:", mean_energy))) + 
     geom_line(aes(y=mean_valence, col='Mean valence'), col='green') +
     geom_line(aes(y=mean_energy, col='Mean energy'), col='orange') +
       geom_line(aes(y=mean_danceability, col='Mean danceability'), col='purple') +
-    ylim(0,1) +
+    ylim(0.1,0.9) +
     scale_x_date(labels = date_format("%d-%m-%Y")) +
-    geom_text(aes(y=((mean_valence+mean_energy)/2)-0.2, x=release_date, label=album_name), size=3) +
+    geom_text(aes(y=((mean_valence+mean_energy)/2)-0.2, x=release_date, label=album_name), size=2.5) +
     geom_segment(aes(x=release_date, xend=release_date, y=((mean_valence+mean_energy)/2)-0.2, yend=mean_valence), size=2, alpha=0.1, linetype="dotted", col=c('red', 'red', 'red', 'red', 'red', 'red', 'red', 'blue', 'blue', 'blue', 'blue', 'blue', 'blue')) +
-    xlab("Date") +
-    ylab("Value")
+    ylab("Value") +
+    theme(axis.title.x=element_blank())
 )
-
-ggplotly(ff, tooltip = c("text"))
+ggplotly(ff, width=582, height=450, tooltip = c("text"))
 ```
 
 ***
 
-There is a downward trend visible in valence and energy, also the danceability descends a bit.
+<div>
+<b>Three interesting things are visable:</b>
+<ul>
+  <li>The <u>valence</u> and <u>energy</u> gradually become lower over time until 1968</li>
+  <li>The <u>valence</u> and <u>energy</u> become more spread out over time.</li>
+  <li>The energy and valence seem correlated</li>
+</ul>
+There is only one big outlier visible, Tomorrow Never Knows of Revolver. When you hear that song it indeed really sounds like an outlier because of the weard sounds in it.
+</div>
 
-### **The chroma analysis of Abbey Road song come together.** {data-commentary-width=600}
+### **The chroma analysis of Abbey Road song Come Together.** {data-commentary-width=600}
 
 ```{r}
 # construct chroma analysis
@@ -255,11 +259,14 @@ CA_CT %>%
 ```
 
 ***
+
 <h2>Chroma analysis of the song come together</h2>
+For the following 4 pages we will dive into the song: Come Together of their last recorded album Abbey Road. We look into this song because it's one of their most popular songs and there are different takes of it available on Spotify.
+
 <div style="background-color:black">
 <iframe src="https://open.spotify.com/embed/track/6lSxM9BKcEZBSDKl2VODsF" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
 </div>
-The extracted notes are pretty good. The song is written in D-minor, which also is visible in the chroma feature. Also interesting is to see is that mainly D and C# are used a lot in the end of the song. This is correct and part of the outro.
+When we look at the chromagram the extracted notes are pretty good. The song is written in D-minor, which also is visible in the chroma feature. Also interesting is to see is that mainly D and C# are used a lot in the end of the song. This is correct and part of the outro that starts after 192 seconds.
 
 ### **Chordograms and Keygrams don't like The Beatles** {data-commentary-width=600}
 
@@ -371,9 +378,9 @@ BB %>%
 
 <iframe src="https://open.spotify.com/embed/track/6lSxM9BKcEZBSDKl2VODsF" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
 
-When we look at this chordogram, you'll think the key of this song is C minor or Eb major. The internet disagrees, <i>tabs.ultimate-guitar.com</i> says the key is Dm and also when I play along on the piano, I think Dm is the right key.
+When we look at this chordogram, you'll think the key of this song is C minor or Eb major. The internet disagrees, <i>tabs.ultimate-guitar.com</i> says the key is Dm and also when I play along on the piano, I also think Dm is the right key.
 
-<b> Two possible reasons why the results are so bad:</b>
+<b> Two possible reasons why the results are so bad in comparison to the chromagram are:</b>
 <ul>
   <li>The song doesn't have a lot of triads.</li>
   <li>The pitch is not based on 440Hz</li>
@@ -409,19 +416,24 @@ CG_CT %>%
 
 ***
 
+<div>
 <h2>Self-Similarity Matrix of the song Come Together</h2>
 
 <iframe src="https://open.spotify.com/embed/track/6lSxM9BKcEZBSDKl2VODsF" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
 
 
-In the Self-Similarity Matrix, it is visible that Come Together is a structured song with a lot of repeating parts. <b>Notice that:</b> 
+In the Self-Similarity Matrix, it is visible that Come Together is a structured song with a lot of repeating parts.
+<p>
+<b>Notice that:</b> 
 <ul>
   <li>The chorus of the song is fairly short, but repeats four times.</li>
   <li>The chorus is also visible at the previous page at the same timestamp</li>
-  <li>like in the chroma analysis and the chordogram, the outro is clearly visible and repeats itself a lot.</li>
+  <li>Like in the chroma analysis and the chordogram, the outro is clearly visible after 192 seconds and repeats itself a lot.</li>
 </ul>
+</p>
+</div>
 
-### **Different takes of the song Come Together** {data-commentary-width=600}
+### **Different takes are really different** {data-commentary-width=600}
 
 ```{r}
 CTO <- 
@@ -455,6 +467,7 @@ plotje
 
 ***
 
+<div>
 <h2>Dynamic timewarp of two different versions of the song Come Together</h2>
 <iframe src="https://open.spotify.com/embed/track/6lSxM9BKcEZBSDKl2VODsF" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
 <iframe src="https://open.spotify.com/embed/track/5c6gzvWGw9EZ7qMxfH9HVy" width="582" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
@@ -464,12 +477,13 @@ plotje
   <li>Repetition, because several diagonal lines are visible. The are spread out over the plot because they changed the structure of the song.</li>
   <li>Homogeneity, because there are a lot of big blocks visible.</li>
 </ul>
-In these blocks, you can see the verses that are similar but different because it was sung a little bit different in comparison to the original take.
+In these blocks, you can see that the versions are similar but not the same.The reasons for this are that: the lyrics are a little bit different, the structure of the songs are different and less instrument were used in Take 5.
+</div>
 
 ### **Lucy's tempo is all over the place** {data-commentary-width=400}
 
 ```{r}
-lucy <- get_tidy_audio_analysis('25yQPHgC35WNnnOUqFhgVR')
+lucy <- get_tidy_audio_analysis('5h0yfg2KLqjVOKpCUTkBKo')
 
 lucy_plot <- lucy %>% 
     tempogram(window_size = 8, hop_size = 1, cyclic = TRUE, bpms = 40:160) %>% 
@@ -484,25 +498,42 @@ lucy_plot
 
 ***
 
+<div>
 <h2>Tempogram of Lucy in the sky with Diamonds</h2>
 <iframe src="https://open.spotify.com/embed/track/25yQPHgC35WNnnOUqFhgVR" width="382" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
 
 As you can see and hear, the tempo changes a lot over time. Because that it is interesting to look at the tempo detected in the Spotify features.
 The detected tempo is <b>65.09 <i>bpm</i></b>.
 
-It's interesting to see Spotify picked this bpm beacuse it's not an average of the song, but just a random point somewhere during the song.
-
-### **Regression model**
-
-<div style="max-width:600px; margin: 0 auto;">
-For the final version of my portfolio I'm busy making a model to see if the songs in the blue and the red album are representable enough to build a regression model to determine to which phase a song of one of the albums belongs.
+It's interesting to see Spotify picked this bpm beacuse it's not an average of the song, but just a random point somewhere during the song. The tempo changes so regularly because the meter alternates between 3/4 and 4/4. The verse is 3/4 and the chorus is 4/4.
 </div>
 
-
-### **Conclusion**
+### **You will not get lost in a forest** {data-commentary-width=600}
 
 <div style="max-width:600px; margin: 0 auto;">
-In the plots, you can see The Beatles changed over time. They started as a band with high energy and valence, but in a few years, they evolved into a more diverse band with songs with high and low energy and high and low valence.
-
-For now, it seems like Apple Records made a good choice dividing the compilation album into two parts. In further work, it would be interesting to look into the evolving of valence in time and to analyze if 1967 was the best splitting point when you look at Spotify's features.
+<h2>Reduced knn phase classifier</h2>
+  <p>
+  In the previous pages, differences between phases of The Beatles were shown. This raises the question: "is it possible to build a classifier to identify to which phase a song of The Beatles belongs?"
+  </p>
+  To answer this question a random forest was used to find the most important features. In the graph in the right-top, it is visible that:
+  <ul>
+    <li>instrumentalness</li>
+    <li>duration</li>
+    <li>c01</li>
+    <li>valence</li>
+  </ul>
+  are the best features to distinguish the two phases.
+  <p>
+  At the right bottom, the performance is shown. Out of 193 songs, 67 songs of the "blue" phase are classified correctly and 76 songs of the "red" phase are classified correctly. This leaves us with an accuracy of <b>74%</b>. 
+  </p>
+In conclusion, you can say The Beatles changed a lot over time, but they always kept their own identity. Therefore it is logical to divide their albums into these two phases like Apple Records did because according to these most important features, their oeuvre is fairly accurately dividable into two phases.
+  </p>
 </div>
+
+***
+
+<b>Random forests feature importance</b>
+<img src="Gini.png" width="90%">
+
+<b>Performance of reduced <i>k</i> nearest neighbour</b>
+<img src="KNN-mosaic-ce.png" width="90%">
